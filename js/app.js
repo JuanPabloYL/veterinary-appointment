@@ -7,6 +7,9 @@ const timeInput = document.querySelector('[data-name="time"]');
 const syntomsInput = document.querySelector('[data-name="syntoms"]');
 
 const form = document.querySelector('[data-name="form"]');
+const appointmentsContainer = document.querySelector(
+  '[data-name="appointments"]',
+);
 
 const citaObj = {
   owner: "",
@@ -48,8 +51,49 @@ class UI {
     }, 3000);
   }
 
-  displayAppointment(appointments) {
-    console.log(appointments);
+  handleLI(input, text, node) {
+    const li = document.createElement("li");
+    li.classList.add(
+      "flex",
+      "justify-around",
+      "gap-[5rem]",
+      "text-lg",
+      "border-b",
+      "pb-2",
+    );
+
+    const label = document.createElement("p");
+    label.classList.add("text-gray-400", "text-left", "w-full");
+    label.textContent = text;
+
+    const labelName = document.createElement("p");
+    labelName.classList.add("font-bold", "w-full");
+    labelName.textContent = input;
+
+    li.appendChild(label);
+    li.appendChild(labelName);
+
+    node.appendChild(li);
+    return li;
+  }
+
+  displayAppointment({ appointments }) {
+    this.clearHTML(appointmentsContainer);
+    appointments.forEach((appointment) => {
+      const ul = document.createElement("ul");
+      ul.classList.add("bg-white", "p-2", "mt-[1.5rem]");
+      for (const element in appointment) {
+        this.handleLI(appointment[element], element, ul);
+      }
+
+      appointmentsContainer.appendChild(ul);
+    });
+  }
+
+  clearHTML(node) {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
   }
 }
 
@@ -93,6 +137,7 @@ function addAppointment(e) {
     return;
   }
   ui.handleAlert("Appointment created");
+  citaObj["id"] = Date.now();
   handleAppointments.handleAppointment({ ...citaObj });
   ui.displayAppointment(handleAppointments);
 
