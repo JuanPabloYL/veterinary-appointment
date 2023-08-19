@@ -20,6 +20,8 @@ const citaObj = {
   syntoms: "",
 };
 
+let edit;
+
 class UI {
   handleAlert(msg, type) {
     const exists = document.querySelector("[data-name='alert']");
@@ -127,6 +129,9 @@ class UI {
               </svg>
               Edit
       `;
+      editButton.onclick = function () {
+        editAppointment(appointment);
+      };
 
       const deleteButton = document.createElement("button");
       deleteButton.classList.add(
@@ -154,7 +159,7 @@ class UI {
       );
       deleteButton.innerHTML = `
             <svg
-                xmlns="http://www.w4.org/2000/svg"
+                xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
@@ -169,6 +174,9 @@ class UI {
               </svg>
               Delete
       `;
+      deleteButton.onclick = function () {
+        deleteAppointment(appointment);
+      };
 
       btnContainer.appendChild(editButton);
       btnContainer.appendChild(deleteButton);
@@ -196,6 +204,19 @@ class Appointment {
 
   handleAppointment(appointment) {
     this.appointments = [...this.appointments, appointment];
+  }
+
+  deleteAppointment(id) {
+    this.appointments = this.appointments.filter(
+      (appointment) => appointment.id !== id,
+    );
+    console.log(this.appointments);
+  }
+
+  editAppointment(updateAppointment) {
+    this.appointments = this.appointments.map((appointment) =>
+      appointment.id === updateAppointment.id ? updateAppointment : appointment,
+    );
   }
 }
 
@@ -228,10 +249,45 @@ function addAppointment(e) {
     ui.handleAlert("All fields are required", "error");
     return;
   }
-  ui.handleAlert("Appointment created");
-  citaObj["id"] = Date.now();
-  handleAppointments.handleAppointment({ ...citaObj });
+  if (edit) {
+    ui.handleAlert("Succesfully Edited");
+    handleAppointments.editAppointment({ ...citaObj });
+    edit = false;
+  } else {
+    ui.handleAlert("Appointment created");
+
+    citaObj["id"] = Date.now();
+    handleAppointments.handleAppointment({ ...citaObj });
+  }
+  document.querySelector('button[type="submit"]').textContent =
+    "Add Appointment";
+
   ui.displayAppointment(handleAppointments);
 
   form.reset();
+}
+
+function deleteAppointment(appointment) {
+  handleAppointments.deleteAppointment(appointment.id);
+
+  ui.displayAppointment(handleAppointments);
+}
+
+function editAppointment(appointment) {
+  const { owner, pet, telephone, date, time, syntoms } = appointment;
+  for (const element in citaObj) {
+    citaObj[element] = appointment[element];
+  }
+
+  ownerInput.value = owner;
+  petInput.value = pet;
+  telephoneInput.value = telephone;
+  dateInput.value = date;
+  timeInput.value = time;
+  syntomsInput.value = syntoms;
+
+  document.querySelector("[data-name=create-appointment]").textContent =
+    "Save Changes";
+
+  edit = true;
 }
